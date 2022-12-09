@@ -1,5 +1,36 @@
 // Storage control
-// create later
+const StorageCtrl = (function () {
+    // public methods
+    return {
+        storeItem: function (item) {
+            let items;
+            // check if any items in ls
+            if (localStorage.getItem('items') === null) {
+                items = [];
+                // push new item
+                items.push(item);
+                // set ls
+                localStorage.setItem('items', JSON.stringify(items));
+            } else {
+                // get what is already in ls
+                items = JSON.parse(localStorage.getItem('items'));
+                // push new item
+                items.push(item);
+                //reset ls
+                localStorage.setItem('items', JSON.stringify(items))
+            }
+        },
+        getItemsFromStorage: function (){
+            let items;
+            if(localStorage.getItem('items')=== null){
+                items = []
+            }else{
+                items = JSON.parse(localStorage.getItem('items'));
+            }
+            return items;
+        }
+    }
+})();
 
 // Item Controller
 const ItemCtrl = (function () {
@@ -124,13 +155,15 @@ const UICtrl = (function () {
     }
 })();
 // App Controller
-const App = (function (ItemCtrl, UICtrl) {
+const App = (function (ItemCtrl, StorageCtrl, UICtrl) {
     // Load event listeners
     const loadEventListeners = function () {
         // get UI Selectors
         const UISelectors = UICtrl.getSelectors();
         // add item event
         document.querySelector(UISelectors.addBtn).addEventListener('click', itemAddSubmit);
+        // add document reload event
+        document.addEventListener('DOMContentLoaded', getItemsFromStorage)
     }
     // item add submit function
     const itemAddSubmit = function (event) {
@@ -145,13 +178,28 @@ const App = (function (ItemCtrl, UICtrl) {
             const totalCalories = ItemCtrl.getTotalCalories();
             // add total calories to UI
             UICtrl.showTotalCalories(totalCalories);
+            // store in localStorage
+            StorageCtrl.storeItem(newItem)
             // Clear fields
             UICtrl.clearInput();
         }
         event.preventDefault()
     }
-
-
+    // get items from storage
+    const getItemsFromStorage = function (){
+        //get items from storage
+        const items = StorageCtrl.getItemsFromStorage()
+        // set storage items to ItemCtrl Data items
+        items.forEach(function (item){
+            ItemCtrl.addItem(item['name'], item['calories'])
+        })
+        // get total calories
+        const totalCalories = ItemCtrl.getTotalCalories();
+        // add total calories to UI
+        UICtrl.showTotalCalories(totalCalories)
+        //populate items list
+        UICtrl.populateItemList(items)
+    }
     return {
         init: function () {
             console.log('Initializing App')
@@ -163,7 +211,7 @@ const App = (function (ItemCtrl, UICtrl) {
             loadEventListeners();
         }
     }
-})(ItemCtrl, UICtrl);
+})(ItemCtrl, StorageCtrl, UICtrl);
 
 // Initialize App
 App.init()
