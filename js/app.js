@@ -47,6 +47,9 @@ const StorageCtrl = (function () {
                 }
             })
             localStorage.setItem('items',JSON.stringify(items))
+        },
+        deleteAllItemsFromStorage: function (){
+            localStorage.removeItem('items')
         }
     }
 })()
@@ -132,6 +135,9 @@ const ItemCtrl = (function () {
             // remove item
             data.items.splice(index, 1)
         },
+        deleteAll: function (){
+          data.items = []
+        },
         // giving currentItem a value
         setCurrentItem: function (item) {
             data.currentItem = item
@@ -159,6 +165,7 @@ const UICtrl = (function () {
         updateBtn: '.update-btn',
         deleteBtn: '.delete-btn',
         backBtn: '.back-btn',
+        clearBtn: '.clear-btn',
         totalCalories: '.total-calories'
     }
 
@@ -234,6 +241,7 @@ const UICtrl = (function () {
         },
         updateListItem: function (item) {
             let listItems = document.querySelectorAll('#item-list li')
+            // turn listItems into array
             listItems = Array.from(listItems)
             listItems.forEach((listItem) => {
                 const itemID = listItem.getAttribute('id')
@@ -250,6 +258,18 @@ const UICtrl = (function () {
             const itemID = `#item-${id}`
             const item = document.querySelector(itemID)
             item.remove()
+        },
+        removeAll: function (){
+            let listItems = document.querySelectorAll('#item-list li')
+            // turn listItems into array
+            listItems = Array.from(listItems)
+            // remove every item from array
+            listItems.forEach((item)=>{
+                item.remove()
+            })
+        },
+        hideUI: function (){
+            document.querySelector('#item-list li').style.display = 'none'
         }
     }
 })()
@@ -270,6 +290,8 @@ const App = (function (ItemCtrl, StorageCtrl, UICtrl) {
         document.querySelector(UISelectors.updateBtn).addEventListener('click', itemUpdateEdit)
         // Delete item event
         document.querySelector(UISelectors.deleteBtn).addEventListener('click',itemDeleteSubmit)
+        // Delete all event
+        document.querySelector(UISelectors.clearBtn).addEventListener('click', deleteAllItems)
         // Return to initial state
         document.querySelector(UISelectors.backBtn).addEventListener('click', function(e) {
             UICtrl.clearEditState()
@@ -349,6 +371,19 @@ const App = (function (ItemCtrl, StorageCtrl, UICtrl) {
 
         UICtrl.clearEditState()
         e.preventDefault()
+    }
+    // delete all event
+    const deleteAllItems = function() {
+        // delete all items from data structure
+        ItemCtrl.deleteAll();
+        // refresh total calories
+        UICtrl.showTotalCalories(ItemCtrl.getTotalCalories())
+        // remove UI
+        UICtrl.removeAll()
+        // delete all items from LS
+        StorageCtrl.deleteAllItemsFromStorage();
+        // hide UI
+        UICtrl.hideUI();
     }
     return {
         init: function () {
