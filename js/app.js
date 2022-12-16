@@ -161,7 +161,6 @@ const UICtrl = (function () {
         itemNameInput: '#item-name',
         itemCaloriesInput: '#item-calories',
         addBtn: '.add-btn',
-        editBtn: '.edit-item',
         updateBtn: '.update-btn',
         deleteBtn: '.delete-btn',
         backBtn: '.back-btn',
@@ -282,10 +281,7 @@ const App = (function (ItemCtrl, StorageCtrl, UICtrl) {
         // add item event
         document.querySelector(UISelectors.addBtn).addEventListener('click', itemAddSubmit)
         // edit icon click event
-        document.querySelector(UISelectors.editBtn).addEventListener('click', function (e){
-            itemEditClick()
-            e.preventDefault()
-        })
+        document.querySelector(UISelectors.itemList).addEventListener('click', itemEditClick)
         // Update item click event
         document.querySelector(UISelectors.updateBtn).addEventListener('click', itemUpdateEdit)
         // Delete item event
@@ -399,6 +395,7 @@ const App = (function (ItemCtrl, StorageCtrl, UICtrl) {
             } else {
                 // Populate list with items
                 UICtrl.populateItemList(items)
+
             }
 
             // Get total calories
